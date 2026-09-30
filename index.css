@@ -1,0 +1,77 @@
+:root{
+  --bg:#eef0f8; --surface:#fff; --ink:#1e1b4b; --muted:#6b6f8d; --line:#dde0f0;
+  --primary:#6d5df6; --primary-dark:#4f3fd8; --coral:#ff7a59; --mint:#1fb996; --amber:#f5a524;
+  --shadow:0 10px 30px rgba(45,40,120,.10);
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#13122b;--surface:#1d1c3f;--ink:#f0efff;--muted:#a3a5c9;--line:#302f5c;--shadow:0 10px 30px rgba(0,0,0,.35)}
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.5}
+
+header{
+  background:linear-gradient(135deg,#4f3fd8 0%,#6d5df6 55%,#ff7a59 130%);
+  color:#fff;padding:56px 20px 110px;text-align:center;
+}
+header h1{margin:0 0 8px;font-size:clamp(2rem,5vw,3.2rem);font-weight:800;letter-spacing:-.02em}
+header p{margin:0 auto;max-width:520px;opacity:.9;font-size:1.05rem}
+
+main{max-width:1120px;margin:-70px auto 60px;padding:0 20px;display:grid;gap:24px}
+
+.card{background:var(--surface);border-radius:22px;padding:26px;box-shadow:var(--shadow)}
+.card h2{margin:0 0 18px;font-size:1.2rem;font-weight:800}
+
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
+.stat{background:var(--surface);border-radius:22px;padding:22px;box-shadow:var(--shadow);border-left:6px solid var(--c)}
+.stat span{display:block;color:var(--muted);font-size:.9rem;font-weight:500}
+.stat strong{display:block;font-size:2rem;font-weight:800;letter-spacing:-.02em;margin-top:2px}
+.s1{--c:var(--primary)}.s2{--c:var(--mint)}.s3{--c:var(--amber)}.s4{--c:var(--coral)}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+@media (max-width:820px){.two{grid-template-columns:1fr}}
+
+form.grid,.filters{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.full{grid-column:1/-1}
+label{display:block;font-size:.85rem;font-weight:700;margin-bottom:6px}
+input,select{
+  width:100%;padding:12px 14px;border:2px solid var(--line);border-radius:12px;
+  background:var(--bg);color:var(--ink);font:inherit;transition:border-color .2s, box-shadow .2s;
+}
+input:focus,select:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 4px rgba(109,93,246,.18)}
+button{font:inherit;cursor:pointer;border:0}
+.btn{
+  background:var(--primary);color:#fff;font-weight:800;padding:14px 18px;border-radius:14px;width:100%;
+  transition:background .2s, transform .1s;
+}
+.btn:hover{background:var(--primary-dark)}
+.btn:active{transform:scale(.98)}
+.btn:focus-visible,.del:focus-visible,.link:focus-visible{outline:3px solid var(--coral);outline-offset:2px}
+.link{background:none;color:var(--primary);font-weight:700;padding:0;margin-top:14px}
+.msg{min-height:1.3em;margin:10px 0 0;font-size:.9rem;font-weight:700;color:var(--mint)}
+.msg.err{color:var(--coral)}
+
+.head{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px;margin-bottom:6px}
+.head h2{margin:0}
+.count{color:var(--muted);font-weight:500}
+
+.products{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:18px;margin-top:16px}
+.product{
+  background:var(--bg);border-radius:18px;padding:20px;display:flex;flex-direction:column;gap:10px;
+  border:2px solid transparent;position:relative;
+}
+.product:hover{border-color:var(--primary)}
+.chip{align-self:flex-start;background:rgba(109,93,246,.15);color:var(--primary);font-weight:700;font-size:.8rem;padding:4px 12px;border-radius:99px}
+.product h3{margin:0;font-size:1.1rem;font-weight:800;word-break:break-word}
+.price{font-size:1.7rem;font-weight:800;letter-spacing:-.02em}
+.row{display:flex;justify-content:space-between;align-items:center;margin-top:auto;gap:8px}
+.badge{font-size:.8rem;font-weight:700;padding:5px 12px;border-radius:99px}
+.ok{background:rgba(31,185,150,.18);color:var(--mint)}
+.low{background:rgba(245,165,36,.2);color:#c4820a}
+.out{background:rgba(255,122,89,.2);color:var(--coral)}
+.del{background:none;color:var(--muted);font-weight:700;padding:6px 10px;border-radius:10px}
+.del:hover{background:rgba(255,122,89,.15);color:var(--coral)}
+.empty{grid-column:1/-1;text-align:center;color:var(--muted);padding:40px 10px}
+footer{text-align:center;color:var(--muted);font-size:.85rem;padding-bottom:30px}
+@media (max-width:520px){form.grid,.filters{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}

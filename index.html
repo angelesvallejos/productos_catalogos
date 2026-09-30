@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mi inventario</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="index.css">
+</head>
+<body>
+<header>
+  <h1>Mi inventario</h1>
+  <p>Cargá tus productos, encontrá lo que buscás y controlá tu stock de un vistazo.</p>
+</header>
+
+<main>
+  <section class="stats" aria-label="Resumen de inventario">
+    <div class="stat s1"><span>Productos</span><strong id="sProd">0</strong></div>
+    <div class="stat s2"><span>Unidades en stock</span><strong id="sUni">0</strong></div>
+    <div class="stat s3"><span>Valor del inventario</span><strong id="sVal">$0</strong></div>
+    <div class="stat s4"><span>Sin stock o stock bajo</span><strong id="sAlert">0</strong></div>
+  </section>
+
+  <div class="two">
+    <section class="card">
+      <h2>Agregar producto</h2>
+      <form class="grid" id="form">
+        <div class="full"><label for="nombre">Nombre</label><input id="nombre" required maxlength="60" placeholder="Ej: Yerba mate 1 kg"></div>
+        <div class="full"><label for="categoria">Categoría</label><input id="categoria" required maxlength="40" list="cats" placeholder="Ej: Almacén"><datalist id="cats"></datalist></div>
+        <div><label for="precio">Precio ($)</label><input id="precio" type="number" min="0" step="0.01" required placeholder="0.00"></div>
+        <div><label for="stock">Stock</label><input id="stock" type="number" min="0" step="1" required placeholder="0"></div>
+        <div class="full"><button class="btn" type="submit">Agregar producto</button></div>
+      </form>
+      <p class="msg" id="msg" role="status"></p>
+    </section>
+
+    <section class="card">
+      <h2>Buscar productos</h2>
+      <div class="filters">
+        <div class="full"><label for="fNombre">Nombre</label><input id="fNombre" type="search" placeholder="Buscar por nombre"></div>
+        <div><label for="fCat">Categoría</label><select id="fCat"><option value="">Todas</option></select></div>
+        <div><label for="fStock">Stock</label>
+          <select id="fStock">
+            <option value="">Todos</option>
+            <option value="ok">Con stock</option>
+            <option value="low">Stock bajo (10 o menos)</option>
+            <option value="out">Sin stock</option>
+          </select></div>
+        <div class="full"><label for="fPrecio">Precio máximo ($)</label><input id="fPrecio" type="number" min="0" step="0.01" placeholder="Sin límite"></div>
+      </div>
+      <button class="link" type="button" id="limpiar">Limpiar filtros</button>
+    </section>
+  </div>
+
+  <section class="card">
+    <div class="head"><h2>Productos</h2><span class="count" id="count"></span></div>
+    <div class="products" id="lista"></div>
+  </section>
+</main>
+<footer>Tus datos se guardan en este navegador.</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
