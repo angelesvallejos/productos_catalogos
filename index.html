@@ -10,21 +10,23 @@
 </head>
 <body>
 <header>
+  <button class="theme" id="theme" aria-label="Cambiar entre modo claro y oscuro">🌙</button>
+  <div class="logo">📦</div>
   <h1>Mi inventario</h1>
   <p>Cargá tus productos, encontrá lo que buscás y controlá tu stock de un vistazo.</p>
 </header>
 
 <main>
   <section class="stats" aria-label="Resumen de inventario">
-    <div class="stat s1"><span>Productos</span><strong id="sProd">0</strong></div>
-    <div class="stat s2"><span>Unidades en stock</span><strong id="sUni">0</strong></div>
-    <div class="stat s3"><span>Valor del inventario</span><strong id="sVal">$0</strong></div>
-    <div class="stat s4"><span>Sin stock o stock bajo</span><strong id="sAlert">0</strong></div>
+    <div class="stat s1"><i>🛍️</i><div><span>Productos</span><strong id="sProd">0</strong></div></div>
+    <div class="stat s2"><i>📚</i><div><span>Unidades en stock</span><strong id="sUni">0</strong></div></div>
+    <div class="stat s3"><i>💰</i><div><span>Valor del inventario</span><strong id="sVal">$0</strong></div></div>
+    <div class="stat s4"><i>⚠️</i><div><span>Sin stock o stock bajo</span><strong id="sAlert">0</strong></div></div>
   </section>
 
   <div class="two">
     <section class="card">
-      <h2>Agregar producto</h2>
+      <h2><span class="ico">➕</span>Agregar producto</h2>
       <form class="grid" id="form">
         <div class="full"><label for="nombre">Nombre</label><input id="nombre" required maxlength="60" placeholder="Ej: Yerba mate 1 kg"></div>
         <div class="full"><label for="categoria">Categoría</label><input id="categoria" required maxlength="40" list="cats" placeholder="Ej: Almacén"><datalist id="cats"></datalist></div>
@@ -36,30 +38,110 @@
     </section>
 
     <section class="card">
-      <h2>Buscar productos</h2>
+      <h2><span class="ico">🔎</span>Buscar productos</h2>
       <div class="filters">
         <div class="full"><label for="fNombre">Nombre</label><input id="fNombre" type="search" placeholder="Buscar por nombre"></div>
         <div><label for="fCat">Categoría</label><select id="fCat"><option value="">Todas</option></select></div>
-        <div><label for="fStock">Stock</label>
-          <select id="fStock">
-            <option value="">Todos</option>
-            <option value="ok">Con stock</option>
-            <option value="low">Stock bajo (10 o menos)</option>
-            <option value="out">Sin stock</option>
-          </select></div>
-        <div class="full"><label for="fPrecio">Precio máximo ($)</label><input id="fPrecio" type="number" min="0" step="0.01" placeholder="Sin límite"></div>
+        <div><label for="fStock">Stock</label><select id="fStock"><option value="">Todos</option><option value="ok">Con stock</option><option value="low">Stock bajo (10 o menos)</option><option value="out">Sin stock</option></select></div>
+        <div><label for="fPrecio">Precio máximo ($)</label><input id="fPrecio" type="number" min="0" step="0.01" placeholder="Sin límite"></div>
+        <div><label for="fOrden">Ordenar por</label><select id="fOrden"><option value="new">Más nuevos</option><option value="asc">Precio: menor a mayor</option><option value="desc">Precio: mayor a menor</option><option value="az">Nombre A-Z</option></select></div>
       </div>
       <button class="link" type="button" id="limpiar">Limpiar filtros</button>
     </section>
   </div>
 
   <section class="card">
-    <div class="head"><h2>Productos</h2><span class="count" id="count"></span></div>
+    <div class="head"><h2><span class="ico">🗂️</span>Productos</h2><span class="count" id="count"></span></div>
     <div class="products" id="lista"></div>
   </section>
 </main>
 <footer>Tus datos se guardan en este navegador.</footer>
+<div class="toast" id="toast" role="status"></div>
 
-<script src="script.js"></script>
+<script>
+const KEY='inventario_v1',$=id=>document.getElementById(id);
+const money=n=>'$'+Number(n).toLocaleString('es-AR',{maximumFractionDigits:2});
+const seed=[
+{id:1,nombre:'Yerba mate 1 kg',categoria:'Almacén',precio:4200,stock:35},
+{id:2,nombre:'Auriculares Bluetooth',categoria:'Tecnología',precio:28500,stock:6},
+{id:3,nombre:'Cuaderno rayado A4',categoria:'Librería',precio:3100,stock:0},
+{id:4,nombre:'Alfajores x6',categoria:'Almacén',precio:5400,stock:18},
+{id:5,nombre:'Cargador USB-C',categoria:'Tecnología',precio:9800,stock:12}];
+let items=[];
+try{const s=localStorage.getItem(KEY);items=s?JSON.parse(s):seed}catch(e){items=seed}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(items))}catch(e){}};
+const estado=s=>s===0?'out':s<=10?'low':'ok';
+const etiqueta={ok:'Con stock',low:'Stock bajo',out:'Sin stock'};
+const esc=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const norm=t=>t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+const hue=t=>{let h=0;for(const c of t)h=(h*31+c.charCodeAt(0))%360;return h};
+const EMO=[['almac','🧉'],['tecno','🎧'],['libre','📓'],['ropa','👕'],['hogar','🏠'],['bebid','🥤'],['comid','🍽️'],['juguet','🧸'],['deport','⚽'],['belleza','💄'],['limpi','🧴'],['herram','🛠️'],['mascot','🐾']];
+const emoji=c=>{const n=norm(c);const m=EMO.find(e=>n.includes(e[0]));return m?m[1]:'📦'};
+
+let toastT;
+function toast(t){const e=$('toast');e.textContent=t;e.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>e.classList.remove('show'),2400)}
+
+function cats(){
+  const c=[...new Set(items.map(i=>i.categoria))].sort((a,b)=>a.localeCompare(b)),cur=$('fCat').value;
+  $('fCat').innerHTML='<option value="">Todas</option>'+c.map(x=>`<option>${esc(x)}</option>`).join('');
+  $('fCat').value=c.includes(cur)?cur:'';
+  $('cats').innerHTML=c.map(x=>`<option value="${esc(x)}">`).join('');
+}
+function countUp(el,to,fmt){
+  const t0=performance.now(),d=900;
+  (function f(t){const p=Math.min((t-t0)/d,1),e=1-Math.pow(1-p,3);el.textContent=fmt(Math.round(to*e));if(p<1)requestAnimationFrame(f)})(t0);
+}
+let first=true;
+function resumen(){
+  const v=[items.length,items.reduce((a,i)=>a+i.stock,0),items.reduce((a,i)=>a+i.stock*i.precio,0),items.filter(i=>i.stock<=10).length];
+  const f=[n=>n,n=>n.toLocaleString('es-AR'),money,n=>n],ids=['sProd','sUni','sVal','sAlert'];
+  ids.forEach((id,k)=>first?countUp($(id),v[k],f[k]):$(id).textContent=f[k](v[k]));
+  first=false;
+}
+function render(){
+  const n=norm($('fNombre').value.trim()),c=$('fCat').value,s=$('fStock').value,p=$('fPrecio').value,o=$('fOrden').value;
+  let res=items.filter(i=>norm(i.nombre).includes(n)&&(!c||i.categoria===c)&&(!s||estado(i.stock)===s)&&(p===''||i.precio<=Number(p)));
+  if(o==='asc')res.sort((a,b)=>a.precio-b.precio);
+  if(o==='desc')res.sort((a,b)=>b.precio-a.precio);
+  if(o==='az')res.sort((a,b)=>a.nombre.localeCompare(b.nombre));
+  $('count').textContent=res.length===items.length?`${items.length} en total`:`${res.length} de ${items.length}`;
+  $('lista').innerHTML=res.length?res.map(i=>{const e=estado(i.stock),w=Math.min(i.stock/50,1)*100;return `
+  <article class="product">
+    <div class="top" style="--h:${hue(i.categoria)}"><div class="emoji">${emoji(i.categoria)}</div><span class="chip">${esc(i.categoria)}</span></div>
+    <div class="body">
+      <h3>${esc(i.nombre)}</h3>
+      <div class="price">${money(i.precio)}</div>
+      <div class="bar" aria-hidden="true"><b class="b-${e}" style="width:${w}%"></b></div>
+      <div class="row"><span class="badge ${e}">${etiqueta[e]}: ${i.stock}</span>
+        <div class="qty"><button data-a="-" data-id="${i.id}" aria-label="Restar una unidad de ${esc(i.nombre)}">−</button><button data-a="+" data-id="${i.id}" aria-label="Sumar una unidad de ${esc(i.nombre)}">+</button></div></div>
+      <button class="del" data-a="x" data-id="${i.id}" aria-label="Eliminar ${esc(i.nombre)}">Eliminar</button>
+    </div>
+  </article>`}).join(''):'<div class="empty"><span>🔍</span>No hay productos con esos filtros. Probá cambiarlos o agregá uno nuevo.</div>';
+}
+const all=()=>{cats();resumen();render()};
+
+$('form').addEventListener('submit',e=>{
+  e.preventDefault();
+  const nombre=$('nombre').value.trim(),categoria=$('categoria').value.trim(),precio=parseFloat($('precio').value),stock=parseInt($('stock').value,10),m=$('msg');
+  if(!nombre||!categoria||isNaN(precio)||isNaN(stock)||precio<0||stock<0){m.className='msg err';m.textContent='Completá todos los campos con valores válidos.';return}
+  items.unshift({id:Date.now(),nombre,categoria,precio,stock});
+  save();e.target.reset();m.textContent='';all();toast(`Agregaste "${nombre}" ✨`);
+});
+$('lista').addEventListener('click',e=>{
+  const b=e.target.closest('button[data-a]');if(!b)return;
+  const it=items.find(i=>i.id===Number(b.dataset.id));if(!it)return;
+  if(b.dataset.a==='+')it.stock++;
+  if(b.dataset.a==='-')it.stock=Math.max(0,it.stock-1);
+  if(b.dataset.a==='x'){items=items.filter(i=>i!==it);toast(`Eliminaste "${it.nombre}"`)}
+  save();resumen();cats();render();
+});
+['fNombre','fCat','fStock','fPrecio','fOrden'].forEach(id=>$(id).addEventListener('input',render));
+$('limpiar').addEventListener('click',()=>{['fNombre','fCat','fStock','fPrecio'].forEach(id=>$(id).value='');$('fOrden').value='new';render()});
+$('theme').addEventListener('click',()=>{
+  const r=document.documentElement,dark=r.dataset.theme?r.dataset.theme==='dark':matchMedia('(prefers-color-scheme:dark)').matches;
+  r.dataset.theme=dark?'light':'dark';$('theme').textContent=dark?'🌙':'☀️';
+});
+all();
+</script>
 </body>
 </html>
